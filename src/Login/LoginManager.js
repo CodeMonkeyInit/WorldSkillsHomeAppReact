@@ -3,7 +3,9 @@ import Environment from "../Environment";
 
 class LoginManager {
 
-    getCookie(name) {
+    static token = '';
+
+    static getCookie(name) {
         const matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
         ));
@@ -12,11 +14,12 @@ class LoginManager {
     }
 
     static getToken(){
-        return this.getCookie('token');
+        // return LoginManager.getCookie('token');
+        return LoginManager.token;
     }
 
     isLogged() {
-        return !!Environment.getToken();
+        return !!LoginManager.token;
     }
 
     async login(login, password) {
@@ -28,7 +31,9 @@ class LoginManager {
 
         let accessToken = await response.json();
 
-        document.cookie = `token=${accessToken}`;
+        document.cookie = `token=${accessToken.token}`;
+
+        LoginManager.token = accessToken.token;
 
         return true;
     }

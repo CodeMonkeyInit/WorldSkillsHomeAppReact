@@ -1,19 +1,20 @@
 import React, {Component} from 'react';
 import Environment from "../Environment";
 import LoginManager from "../Login/LoginManager";
-
-;
+import Device from "../Device/Device";
+import Loading from "../Loading/Loading";
 
 class Room extends Component {
     state = {
         room: {},
-        devices: []
+        devices: [],
+        deviceSelected: null,
     };
 
     roomApiPath = Environment.apiPath + Environment.apiRoutes.rooms;
 
     async getRoomDevices() {
-        let response = await fetch(`${this.roomApiPath}${this.props.roomId}/${Environment.apiRoutes.devices}`, {
+        let response = await fetch(`${this.roomApiPath}/${this.props.room.id}/${Environment.apiRoutes.devices}`, {
             headers: Environment.getHeaders(LoginManager.getToken())
         });
 
@@ -23,20 +24,27 @@ class Room extends Component {
     }
 
     componentWillMount() {
+        this.setState({room: this.props.room});
         this.getRoomDevices();
+    }
 
-        this.setState(this.props.room);
+    getComponent() {
+        if (this.state.deviceSelected) {
+            return <Device device={this.state.deviceSelected} back={() =>
+                this.setState({deviceSelected: null})}/>
+        }
+
+        return (
+            <div className="card">
+                <div onClick={() => this.props.back()}>Close</div>
+                {this.renderRoomData()}
+                {this.renderDevices()}
+            </div>
+        );
     }
 
     render() {
-        return this.state.room && this.state.devices.length > 0 ? (
-            <div>
-                {this.renderRoomData()}
-
-                {this.renderDevices()}
-            </div>
-        ) : <div>Загрузка...</div>;
-
+        return this.getComponent();
     }
 
     renderRoomData = () => (
@@ -45,17 +53,22 @@ class Room extends Component {
         </div>
     );
 
-    renderDevices = () => (
-        <div className="devices">
-            {this.state.devices.map(device => (
-                <div key={device.id}>
-                    <h1>{device.name}</h1>
-                    <div onClick={() => this.props.deviceSelected(device)}>{device.value}</div>
-                    <p1>{device.typeName}</p1>
-                </div>
-            ))}
-        </div>
-    );
+    renderDevices() {
+        if (this.state.devices.length > 0) {
+            return (
+                <div className="devices">
+                    {this.state.devices.map(device => (
+                        <div key={device.id}>
+                            <h1>{device.name}</h1>
+                            <div onClick={() => this.setState({deviceSelected: device})}>{device.value}</div>
+                            <h2>{device.typeName}</h2>
+                        </div>
+                    ))}
+                </div>);
+        } else {
+            return <Loading/>;
+        }
+    }
 }
 
 

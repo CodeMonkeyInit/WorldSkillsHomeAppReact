@@ -7,19 +7,13 @@ class Device extends Component {
     };
 
     render() {
-        if (this.state.macros) {
-            return (
-                <div>
-                    {this.renderDevice()}
-                </div>
-            );
-        }
-
         return (
-            <div>
-                Загрузка...
+            <div className="card">
+                <div onClick={() => this.props.back()}>Close</div>
+                {this.renderDevice()}
             </div>
-        )
+        );
+
     }
 
     componentWillMount() {

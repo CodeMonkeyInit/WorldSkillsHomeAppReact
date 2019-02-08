@@ -2,14 +2,12 @@ import React, {Component} from 'react';
 import './App.css';
 import Login from "../Login/Login";
 import Home from "../Home/Home";
-import Room from "../Room/Room";
-import Device from "../Device/Device";
+import NavBar from "./NavBar/NavBar";
 
 class App extends Component {
     state = {
-        isLogged: false,
-        room: null,
-        device: null
+        renderingElement: <Home/>,
+        isLogged: false
     };
 
     wasLogged() {
@@ -17,36 +15,32 @@ class App extends Component {
     }
 
     getContent() {
-        if(this.state.device){
-            return <Device/>
-        }
-
-        if (this.state.room) {
-            return <Room room={this.state.room} deviceSelected={device =>
-                this.setState({device})}/>
-        }
-
-        return <Home roomSelected={room =>
-            this.setState({room})}/>;
-
-    }
-
-    roomSelected(roomId) {
-
-    }
-
-    render() {
         let content = <Login onLogin={() => this.wasLogged()}/>;
 
         if (this.state.isLogged) {
-
+            content = this.state.renderingElement;
         }
 
+        return content;
+    }
+
+    roomSelected(room) {
+        this.setState(room);
+    }
+
+    render() {
         return (
             <div className="App">
-                {content}
+                <NavBar selected={element =>
+                    this.setState({renderingElement: element})}/>
+
+                {this.getContent()}
             </div>
         );
+    }
+
+    navbarItemSelected(element) {
+        this.setState({renderingElement: element});
     }
 }
 
